@@ -1,1 +1,6 @@
-dvbd
+$Env:PSModulePath -- to module path
+
+Installing Steps
+
+1) Install-Module -name AWSPowerShell.NetCore 
+2) 
