@@ -1,0 +1,11 @@
+To check if elasticsearch is running  
+http://localhost:9200/
+
+To start the service 
+sudo systemctl start elasticsearch.service
+sudo systemctl stop elasticsearch.service
+
+Check this page for info
+https://www.elastic.co/guide/en/elasticsearch/reference/7.6/deb.html#deb-repo
+
+
