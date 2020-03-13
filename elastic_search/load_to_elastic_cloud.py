@@ -13,7 +13,6 @@ es = elasticsearch.Elasticsearch(['https://cc3cc9f39374448598659dd32a18e153.us-e
 with open("Sample Json File with 500 Records.json", encoding='utf-8') as json_file:
     json_docs = json.loads(json_file.read())
 print(type(json_docs["feeds"][0]))
-for feed in json_docs["feeds"]:
-    str = {}
-    pprint(feed)
-    break
+for i, feed in enumerate(json_docs["feeds"]):
+    es.index(index="testing_sample_1", body=json.dumps(feed), id=i+1)
+
