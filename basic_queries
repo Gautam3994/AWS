@@ -1,0 +1,210 @@
+GET /_cat/health?v&pretty
+
+GET /_cat/count?v
+
+GET /_cat/indices?v
+
+GET /_cat/nodes?v
+
+# CREATE INDEX
+
+PUT /testing
+
+# CREATE DOCUMENT
+
+PUT /testing/_doc/2
+{
+  "sample": "test"
+}
+
+# IF YOU DONT SPECIFY ID IT CREATES ONE AUTOMATICALLY
+
+POST testing/_doc
+{
+  "sampple": "testing"
+}
+
+# GET DOCUMENT
+
+GET /testing/_doc/1
+
+# IF DOCUMENT IS NOT THERE WE WILL GET FOUND = FALSE
+
+GET /testing/_doc/4
+
+# RESTRTICTING RESULTING FIELDS
+
+GET /products/_doc/1?_source=type
+
+GET /products/_doc/1?_source_excludes=brand
+
+GET /products/_doc/1?_source_includes=type,brand
+
+# CHECK WHETHER DOCUMENT EXISTING
+
+GET /testing/_doc/1?_source=false
+
+HEAD /testing/_doc/1?
+
+# UPDATING DOCUMENTS
+
+# UPDATING ALL FIELDS IN A DOCUMENT
+
+PUT /testing/_doc/1
+{
+  "changed": true
+}
+
+# UPDATING PARTICULAR FIELDS
+
+POST /testing/_update/1
+{
+  "doc": {
+    "new": "change",
+    "changed": false
+  }
+}
+
+# UPDATE WITH USE OF SCRIPTS
+
+POST /products/_update/1
+{
+  "script": "ctx._source.Price+=1"
+}
+
+
+# UPDATING NESTED ELEMENTS
+
+GET /testing_sample_1/_doc/51
+
+POST /testing_sample_1/_update/51
+{
+  "script": {
+    "source": "ctx._source.multiMedia.add(params.values)",
+    "params": { "values": {"sample": "value"}}
+  }
+}
+
+
+# DELETE DOCUMENT
+
+DELETE /testing/_doc/2
+
+# DELETE INDEX
+
+DELETE /testing
+
+# RETREIVING MULTIPLE DOCUMENTS
+
+# IF YOU DONT SPECIFY INDEX IN GET YOU HAVE TO MENTION IT INSIDE "docs"
+
+GET /products/_mget
+{
+  "docs": [
+    {
+    "_id": 1
+    },
+    {
+      "_id": 2
+    },
+    {
+      "_id": 3
+    }
+  ]
+}
+
+# BULK OPERATIONS
+
+#!!!!IMPORTANT THAT YOU DONT LEAVE SPACES IN BULK OPERATIONS
+
+POST /_bulk
+{"index": {"_index": "products", "_id": 10}}
+{"type": "shoes", "brand": "nike", "model": "AIR-FORCE - 1"}
+{"index": {"_index": "testing", "_id": 10}}
+{"testing": "sample"}
+
+# IF YOU UPDATE DOCS IN SAME INDEX 
+POST /products/_bulk
+{"index": {"_id": 11}}
+{"type": "shoes", "brand": "nike", "model": "AIR-MAX"}
+{"index": {"_id": 12}}
+{"type": "shoes", "brand": "nike", "model": "DILATTA"}
+
+#FOR AUTO-GENERATED ID DONT USE ANY VALUE IN ID
+
+POST /products/_bulk
+{"index": {}}
+{"type": "shoes", "brand": "nike", "model": "AIR-MAX"}
+{"index": {}}
+{"type": "shoes", "brand": "nike", "model": "DILATTA"}
+
+#COMPLEX BULK OPERATIONS
+
+POST /products/_bulk
+{"index": {"_id": "13"}}
+{"types": "shoes", "brand": "adidas"}
+{"delete": {"_id": "lACV0nABZV2_3C27sn4f"}}
+{"create": {"_id": "15"}}
+{"brand": "Puma"}
+{"update": {"_id": "15"}}
+{"doc": {"model": "hellfire"}}
+
+# USE PYTHON TO UPLOAD FROM JSON
+# REFER AWS GIT REPO
+
+GET /testing_sample_1/_search
+
+# SEARCH TO GET ALL DOCUMENTS
+
+GET /testing/_search
+
+# TO LIMIT THE NO OF RESULTS
+# DEFAULT SIZE IS 10 DOCS
+
+GET /products/_search?size=20
+
+# COUNT
+
+GET /testing_sample_1/_count
+
+# MAPPING
+
+GET /products/_mapping
+
+# DELETE BY QUERY
+
+#! TIP PLACE CURSOR IN RESULTS AND THEN CTRL+F
+
+GET /testing_sample_1/_search?size=501
+
+# DELETE BY QUERY
+
+POST /testing_sample_1/_delete_by_query
+{
+  "query": {
+    "match": {
+      "name": "manoj"
+    }
+  } 
+}
+
+# UPDATE BY QUERY
+
+# https://iridakos.com/programming/2019/05/02/add-update-delete-elasticsearch-nested-objects
+ 
+POST /testing_sample_1/_update_by_query
+{
+  "query": {
+    "match": {
+      "name": "jagjit"
+    }
+  },
+  "script": {
+    "source": "ctx._source.videoUrl=params.values",
+    "params": { "values": "https://www.youtube.com"}
+  }
+}
+
+
+
+

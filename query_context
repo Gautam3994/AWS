@@ -1,0 +1,18 @@
+#!DOMAIN SPECIFIC LANGUAGE - DSL
+
+#QUERY CONTEXT
+
+#LOOKS FOR RELEVANCE AND RANKS THEM
+
+#In the below query wyoming could be present anywhere in the documents
+
+GET /fake_data/_search?q="wyoming","green"&size=20
+
+#Check how to count
+
+GET /fake_data/_search?q="wyoming"/_count
+
+#FILTER CONTEXT
+
+#LOOKS FOR EXACT MATCHES
+
