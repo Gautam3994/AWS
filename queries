@@ -72,6 +72,20 @@ POST /products/_update/1
   "script": "ctx._source.Price+=1"
 }
 
+
+# UPDATING NESTED ELEMENTS
+
+GET /testing_sample_1/_doc/51
+
+POST /testing_sample_1/_update/51
+{
+  "script": {
+    "source": "ctx._source.multiMedia.add(params.values)",
+    "params": { "values": {"sample": "value"}}
+  }
+}
+
+
 # DELETE DOCUMENT
 
 DELETE /testing/_doc/2
@@ -143,4 +157,38 @@ GET /testing_sample_1/_search
 # SEARCH TO GET ALL DOCUMENTS
 
 GET /testing/_search
+
+# TO LIMIT THE NO OF RESULTS
+# DEFAULT SIZE IS 10 DOCS
+
+GET /products/_search?size=20
+
+# COUNT
+
+GET /testing_sample_1/_count
+
+# MAPPING
+
+GET /products/_mapping
+
+# DELETE BY QUERY
+
+#! TIP PLACE CURSOR IN RESULTS AND THEN CTRL+F
+
+GET /testing_sample_1/_search?size=501
+
+# DELETE BY QUERY
+
+POST /testing_sample_1/_delete_by_query
+{
+  "query": {
+    "match": {
+      "name": "manoj"
+    }
+  }
+}
+
+# UPDATE BY QUERY
+
+
 
