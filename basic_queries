@@ -185,10 +185,26 @@ POST /testing_sample_1/_delete_by_query
     "match": {
       "name": "manoj"
     }
-  }
+  } 
 }
 
 # UPDATE BY QUERY
+
+# https://iridakos.com/programming/2019/05/02/add-update-delete-elasticsearch-nested-objects
+ 
+POST /testing_sample_1/_update_by_query
+{
+  "query": {
+    "match": {
+      "name": "jagjit"
+    }
+  },
+  "script": {
+    "source": "ctx._source.videoUrl=params.values",
+    "params": { "values": "https://www.youtube.com"}
+  }
+}
+
 
 
 
