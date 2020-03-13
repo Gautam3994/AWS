@@ -135,7 +135,10 @@ POST /products/_bulk
 {"update": {"_id": "15"}}
 {"doc": {"model": "hellfire"}}
 
-GET /products/_search
+# USE PYTHON TO UPLOAD FROM JSON
+# REFER AWS GIT REPO
+
+GET /testing_sample_1/_search
 
 # SEARCH TO GET ALL DOCUMENTS
 
