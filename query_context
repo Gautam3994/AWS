@@ -1,16 +1,206 @@
 #!DOMAIN SPECIFIC LANGUAGE - DSL
 
+#! NO CURSORS/SESSION IN SEARCH
+
 #QUERY CONTEXT
 
 #LOOKS FOR RELEVANCE AND RANKS THEM
 
 #In the below query wyoming could be present anywhere in the documents
 
-GET /fake_data/_search?q="wyoming","green"&size=20
+# time=took total: {value: [count]} - Check these in results
 
-#Check how to count
+# results is higher relevance score appear first
 
-GET /fake_data/_search?q="wyoming"/_count
+#!IN URL
+
+GET /fake_data/_search?q=wyoming&size=20
+
+#SORTING
+
+#once sorted the relevance score is null
+
+# below each document in the results there will be a sort field
+
+#DESCENDING
+
+GET /fake_data/_search?q=wyoming&sort=age:desc
+
+#ASCENDING
+
+GET /fake_data/_search?q=kentucky&sort=age:asc
+
+#FROM AND LIMIT
+
+GET /fake_data/_search?q=kentucky&sort=age:asc&from=10&size=2
+
+#EXPLAIN
+
+GET /fake_data/_search?q=kentucky&explain=true
+
+#!INSIDE JSON BODY
+
+#MATCH_ALL
+
+# For below query every document will have score of 1
+
+GET /fake_data/_search
+{
+  "query": {"match_all": {}},
+  "size": 10
+}
+
+GET /fake_data/_search
+{
+  "query": {"match_all": {}},
+  "from": 5,
+  "size": 1
+}
+
+#MULIPLE INDICES
+
+GET /fake_data,products/_search
+{
+  "query": {"match_all": {}},
+  "size": 20
+}
+
+# MATCH_ALL WITH SORT
+
+GET /fake_data/_search
+{
+  "query": {"match_all": {}},
+  "sort": {"age": {"order": "desc"}},
+  "size": 20
+}
+
+# TERM
+# IN BELOW Gates will return none but gates will work
+
+GET /fake_data/_search
+{
+  "query": {
+    "term": {"name": "william"}
+  }
+}
+
+# TO GET ONLY IDS AND SCORES
+
+GET /fake_data/_search
+{
+  "_source": false,
+  "query": {"term": {"address": "chestnut"}}
+}
+
+# TO GET ONLY SPECIFIC FIELD WITH REGEX
+
+GET /fake_data/_search
+{
+  "_source": "na*",
+  "query": {"term": {"address": "chestnut"}}
+}
+
+#TO GET MULTIPLE FIELDS
+
+# THIS DOESNT AFFECT  ORDER OF RELEVANCE
+
+GET /fake_data/_search
+{
+  "_source": ["age", "na*", "add*", "*e"],
+  "query": {"term": {"address": "chestnut"}}
+}
+
+# SPECIFY FIELDS TO INCLUDE AND EXCLUDE
+
+GET /fake_data/_search
+{
+  "_source": {
+    "includes": ["age", "name", "email", "*n*"],
+    "excludes": ["*der"]
+  },
+  "query": {"term": {"address": "chestnut"}}
+}
+
+#FULL TEXT QUERIES
+
+GET /fake_data/_search
+{
+  "query": {"match": {
+    "name": "william"
+  }}
+}
+
+# WITH OR OPERATOR
+# THE DEFAULT IS OR SO YOU DONT HAVE TO SPECIFY
+
+GET /fake_data/_search
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "frank bridges",
+        "operator": "or"
+      }
+    }
+  }
+}
+
+GET /fake_data/_search
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "frank bridges",
+        "operator": "and"
+      }
+    }
+  }
+}
+
+GET /fake_data/_search
+{
+  "query": {
+    "match": {
+      "address": {
+        "query": "tompkins place"
+      }
+    }
+  }
+}
+
+
+# MATCH PHRASE
+# IT IS USEFUL TO MATCH SENTENCES AND QUOTES
+
+GET /fake_data/_search
+{
+  "query": {
+    "match_phrase": {
+      "address": "tompkins place"
+    }
+  }
+}
+
+#MATCH PHRASE PREFIX
+#IT CAN BE USED FOR AUTO COMPLETE
+
+GET /fake_data/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "name": "ma"
+    }
+  }
+}
+
+GET /fake_data/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "address": "clymer st"
+    }
+  }
+}
 
 #FILTER CONTEXT
 
