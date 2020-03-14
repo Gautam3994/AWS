@@ -202,7 +202,181 @@ GET /fake_data/_search
   }
 }
 
-#FILTER CONTEXT
+# CUT-OFF FREQUENCY
 
-#LOOKS FOR EXACT MATCHES
+# TERMS WITH FREQUENCY HIGHER THAN THE CUT-OFF FREQUENCY ARE CONSIDERED AS COMMON TERMS[look in elastic_search.odt]
+
+#! THE BELOW HAS BEEN DEPRECATED
+
+GET /fake_data/_search
+{
+  "query": {
+    "common": {
+      "reviews": {
+        "query": "officia mollit id",
+        "cutoff_frequency": 0.001
+      }
+    }
+  }
+}
+
+#COMPOUND QUERY
+
+#BOOLEAN COMPOUND QUERY - ANY NUMBERS CAN BE SPECIFIED
+
+# MUST
+
+# IN BELOW BOTH MATCH CONDITIONS MUST BE TRUE
+
+GET /fake_data/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"match": {"address": "Paerdegat"}},
+        {"match": {"address": "Avenue"}}
+      ]
+    }
+  }
+}
+
+# SHOULD - MAY OR MAY NOT
+
+# IT IS ESSENTIALY OR CONDITION
+
+GET /fake_data/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        {"match": {"address": "Paerdegat"}},
+        {"match": {"address": "Avenue"}}
+      ]
+    }
+  }
+}
+
+# MUST_NOT
+
+# content in match work like or condition
+
+# Relevance score does not matter here
+
+GET fake_data/_search
+{
+  "query": {
+    "bool": {
+      "must_not": [
+        {"match": {"eyeColor": "green blue"}},
+        {"match": {"address": "Avenue Street Place Court Road"}}
+      ]
+    }
+  }
+}
+
+
+# FILTER _ MUST APPEAR IN RESULT BUT IT IS NOT SCORED
+
+#FILTER CONTEXT - EXACT MATCH
+
+# RANGE
+
+GET fake_data/_search
+{
+  "query": {
+    "bool": {
+      "must": {"match_all": {}},
+      "filter": {
+        "range": {
+          "age": {
+            "gte": 10,
+            "lte": 20
+          }
+        }
+      }
+    }
+  }
+}
+
+# Multiple filter conditions
+
+# Since this has search query(must) there will be scores in results
+
+GET fake_data/_search
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match": {
+          "address": "alabama"
+        }
+      },
+      "filter": [
+        {"term": {"gender": "female"}},
+        {"range": {"age": {"gte": "20"}}}
+        ]
+    }
+  }
+}
+
+
+
+# TERM QUERIES - EXACT WORDS TO BE MATCHED
+
+# CHECK WHY JERSEY WORKS BUT NEW JERSEY DOESNT
+
+GET fake_data/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "term": {
+            "address": {
+              "value": "jersey"
+            }
+          }
+        },
+        {
+          "term": {
+            "address": {
+              "value": "utah"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "size": 100
+}
+
+#boost - boosts the score of the particular search result
+
+GET fake_data/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "term": {
+            "address": {
+              "value": "jersey",
+              "boost": 2
+            }
+          }
+        },
+        {
+          "term": {
+            "address": {
+              "value": "utah"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "size": 100
+}
+
+
 
