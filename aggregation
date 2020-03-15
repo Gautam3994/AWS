@@ -1,0 +1,300 @@
+#AGGREGATIONS
+
+# METRIC AGGREGATION
+
+#avg_age is the value that we specify, size = 0 to indicatwe not to return anything
+
+GET /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "avg_age": {
+      "avg": {
+        "field": "age"
+      }
+    }
+  }
+}
+
+# To get count, min, max ,avg, sum in one query
+
+GET /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "all_stats": {
+      "stats": {
+        "field": "age"
+      }
+    }
+  }
+}
+
+# in combination with bool
+
+GET /fake_data/_search
+{
+  "size": 17,
+  "query": {
+    "bool": {
+      "filter": {
+        "match": {"address": "california"}
+      }
+    }
+  },
+  "aggs": {
+    "all_stats": {
+      "stats": {
+        "field": "age"
+      }
+    }
+  }
+}
+
+# CARDINALITY - METRIC AGGREGATION
+# TO FIND THE NUMBER OF UNIQUE VALUES OF A FIELD
+# YOU HAVE TO ENABLE fielddata IN MAPPINGS TO USE THIS IN TEXT FIELDS - BECAUSE AGGREGATION REQUIRE VALUES BUT TEXT ARE BY DEFAULT HASHED WHILE STORING IT.
+
+GET /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "no_of_unique_ages": {
+      "cardinality": {
+        "field": "age"
+      }
+    }
+  }
+}
+
+# BELOW WILL ERR AS fielddata is not enabled
+
+GET /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "no_of_unique_ages": {
+      "cardinality": {
+        "field": "gender"
+      }
+    }
+  }
+}
+
+
+#NOW ENABLING FIELDDATA
+
+PUT /fake_data/_mapping
+{
+  "properties": {
+    "company": {
+      "type": "text",
+      "fielddata": true
+    }
+  }
+}
+
+GET /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "no_of_unique_eyeColor": {
+      "cardinality": {
+        "field": "eyeColor"
+      }
+    }
+  }
+}
+
+#BUCKETTING AGGREGATION IS SIMILAR TO GROUP BY IN SQL
+
+# IN RESPONSE
+# doc_count_error_upper_bound - how much the result can vary from the actual result
+# sum_other_doc_count - sum of documents which are not part of the response
+
+POST /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "gender_bucket": {
+      "terms": {
+        "field": "gender"
+      }
+    }
+  }
+}
+
+POST /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "age_bucket": {
+      "terms": {
+        "field": "age"
+      }
+    }
+  }
+}
+
+#BUCKETING WITH RANGE
+
+POST /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "age_ranges": {
+      "range": {
+        "field": "age",
+        "ranges": [
+          {"to": 30},
+          {"from": 30, "to": 40},
+          {"from": 40, "to": 55},
+          {"from": 55}
+        ]
+      }
+    }
+  }
+}
+
+# KEYED RANGE
+
+POST /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "age_ranges": {
+      "range": {
+        "field": "age",
+        "keyed": true,
+        "ranges": [
+          {"to": 30},
+          {"from": 30, "to": 40},
+          {"from": 40, "to": 55},
+          {"from": 55}
+        ]
+      }
+    }
+  }
+}
+
+# GIVING SPECIFIC NAMES FOR RANGES
+
+POST /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "age_ranges": {
+      "range": {
+        "field": "age",
+        "keyed": true,
+        "ranges": [
+          {"key":"young", "to": 30},
+          {"key":"bit old", "from": 30, "to": 40},
+          {"key":"old", "from": 40, "to": 55},
+          {"key":"really old", "from": 55}
+        ]
+      }
+    }
+  }
+}
+
+
+#MULTI-LEVEL AGGREGATION
+
+# TWO LEVEL AGGREGATION
+
+POST /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "gender_bucket": {
+      "terms": {
+        "field": "gender"
+      },
+    "aggs": {
+      "average_age": {
+        "avg": {
+          "field": "age"
+        }
+      }
+    }
+    }
+  }
+}
+
+
+# THREE LEVEL AGGREGATION - BE CAREFUL WITH BRACKETS
+
+POST fake_data/_search
+{
+  "size": 0,
+  "aggs":
+  {
+    "gender_bucket":
+    {
+      "terms":
+      {
+        "field": "gender"
+      },
+      "aggs":
+      {
+        "age_range":
+        {
+          "range":
+          {
+            "field": "age",
+            "keyed": true,
+            "ranges": [
+              {"key":"young", "to": 30},
+              {"key":"bit old", "from": 30, "to": 40},
+              {"key":"old", "from": 40, "to": 55},
+              {"key":"really old", "from": 55}
+            ]
+          },
+          "aggs": {
+            "average_age": {
+              "avg": {
+                "field": "age"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# FILTER AGGREGATION
+
+#! KEEP SIZE AT 0 RESULTS WILL NOT BE FILTERED
+
+GET /fake_data/_search?size=1000
+
+
+POST /fake_data/_search?size=0
+{
+    "aggs" : {
+        "state" : {
+            "filter" : { "term": { "address": "texas" } },
+            "aggs" : {
+                "avg_age" : { "avg" : { "field" : "age" } }
+            }
+        }
+    }
+}
+
+POST /fake_data/_search
+{
+  "size": 0,
+  "aggs": {
+    "states": {
+      "filters": {
+        "filters": {
+          "washington": {"match": {"address": "washington"}},
+          "north carolina": {"match": {"address": "north carolina"}},
+          "south dakota": {"match": {"address": "south dakota"}}
+        }
+      }
+    }
+  }
+}
